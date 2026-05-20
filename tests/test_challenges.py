@@ -6,6 +6,7 @@ import pytest
 
 from src.challenges import (
     HAUNTED_CITY,
+    best_next_monster_stop,
     monster_delivery_costs,
     shortest_monster_delivery,
     validate_haunted_map,
@@ -46,7 +47,10 @@ def test_validate_haunted_map_rejects_missing_neighbor_node():
 
 
 def test_monster_delivery_costs_from_crypt_kitchen():
-    result = monster_delivery_costs(HAUNTED_CITY, "Crypt Kitchen")
+    result = monster_delivery_costs(
+        HAUNTED_CITY,
+        "Crypt Kitchen",
+    )
 
     assert result["Crypt Kitchen"] == 0
     assert result["Fog Alley"] == 2
@@ -64,7 +68,10 @@ def test_monster_delivery_costs_keeps_unreachable_as_inf():
         "Ghost Island": {},
     }
 
-    result = monster_delivery_costs(graph, "Crypt Kitchen")
+    result = monster_delivery_costs(
+        graph,
+        "Crypt Kitchen",
+    )
 
     assert result["Crypt Kitchen"] == 0
     assert result["Fog Alley"] == 2
@@ -73,7 +80,10 @@ def test_monster_delivery_costs_keeps_unreachable_as_inf():
 
 def test_monster_delivery_costs_missing_start_raises_value_error():
     with pytest.raises(ValueError):
-        monster_delivery_costs(HAUNTED_CITY, "Missing Coffin Shop")
+        monster_delivery_costs(
+            HAUNTED_CITY,
+            "Missing Coffin Shop",
+        )
 
 
 def test_shortest_monster_delivery_finds_expected_path():
@@ -84,6 +94,7 @@ def test_shortest_monster_delivery_finds_expected_path():
     )
 
     assert cost == 10
+
     assert path == [
         "Crypt Kitchen",
         "Fog Alley",
@@ -146,7 +157,10 @@ def test_shortest_monster_delivery_missing_target_returns_inf_and_empty_path():
 def test_shortest_monster_delivery_handles_cycle():
     graph = {
         "Crypt Kitchen": {"Fog Alley": 2},
-        "Fog Alley": {"Crypt Kitchen": 2, "Vampire Tower": 5},
+        "Fog Alley": {
+            "Crypt Kitchen": 2,
+            "Vampire Tower": 5,
+        },
         "Vampire Tower": {},
     }
 
@@ -157,14 +171,26 @@ def test_shortest_monster_delivery_handles_cycle():
     )
 
     assert cost == 7
-    assert path == ["Crypt Kitchen", "Fog Alley", "Vampire Tower"]
+
+    assert path == [
+        "Crypt Kitchen",
+        "Fog Alley",
+        "Vampire Tower",
+    ]
 
 
 def test_shortest_monster_delivery_accepts_either_tied_shortest_path():
     graph = {
-        "Crypt Kitchen": {"Fog Alley": 2, "Bone Bridge": 2},
-        "Fog Alley": {"Vampire Tower": 3},
-        "Bone Bridge": {"Vampire Tower": 3},
+        "Crypt Kitchen": {
+            "Fog Alley": 2,
+            "Bone Bridge": 2,
+        },
+        "Fog Alley": {
+            "Vampire Tower": 3,
+        },
+        "Bone Bridge": {
+            "Vampire Tower": 3,
+        },
         "Vampire Tower": {},
     }
 
@@ -175,7 +201,47 @@ def test_shortest_monster_delivery_accepts_either_tied_shortest_path():
     )
 
     assert cost == 5
+
     assert path in [
-        ["Crypt Kitchen", "Fog Alley", "Vampire Tower"],
-        ["Crypt Kitchen", "Bone Bridge", "Vampire Tower"],
+        [
+            "Crypt Kitchen",
+            "Fog Alley",
+            "Vampire Tower",
+        ],
+        [
+            "Crypt Kitchen",
+            "Bone Bridge",
+            "Vampire Tower",
+        ],
     ]
+
+
+def test_best_next_monster_stop_returns_cheapest_target():
+    target, cost = best_next_monster_stop(
+        HAUNTED_CITY,
+        "Crypt Kitchen",
+        [
+            "Goblin Market",
+            "Werewolf Den",
+            "Vampire Tower",
+        ],
+    )
+
+    assert target == "Goblin Market"
+    assert cost == 6
+
+
+def test_best_next_monster_stop_returns_empty_when_unreachable():
+    graph = {
+        "Crypt Kitchen": {},
+        "Ghost Island": {},
+    }
+
+    target, cost = best_next_monster_stop(
+        graph,
+        "Crypt Kitchen",
+        ["Ghost Island"],
+    )
+
+    assert target == ""
+    assert cost == inf
