@@ -2,6 +2,34 @@ from math import inf
 import heapq
 
 
+
+
+HAUNTED_CITY = {
+    "Crypt Kitchen": {
+        "Fog Alley": 2,
+        "Bone Bridge": 5,
+    },
+    "Fog Alley": {
+        "Moon Bridge": 1,
+        "Goblin Market": 6,
+    },
+    "Bone Bridge": {
+        "Goblin Market": 2,
+    },
+    "Moon Bridge": {
+        "Werewolf Den": 5,
+        "Goblin Market": 3,
+    },
+    "Goblin Market": {
+        "Vampire Tower": 5,
+    },
+    "Werewolf Den": {
+        "Vampire Tower": 2,
+    },
+    "Vampire Tower": {},
+}
+
+
 def validate_haunted_map(graph: dict[str, dict[str, int]]) -> None:
     """Raise ValueError if the haunted map is invalid."""
 
